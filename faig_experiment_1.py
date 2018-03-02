@@ -27,9 +27,9 @@ import operator
 ########################################################################################################################
 # REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
 # API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '*************' 
-# #API_KEY = '*************'
-# data = {"identifier":"*************","password": "**************"}
+# API_KEY = '***********' 
+# #API_KEY = '********'
+# data = {"identifier":"*********","password": "*********"}
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -39,8 +39,8 @@ import operator
 ########################################################################################################################
 REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
 API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-API_KEY = '*************'
-data = {"identifier":"*************","password": "*************"}
+API_KEY = '**************'
+data = {"identifier":"************","password": "***********"}
 
 headers = {'Content-Type':'application/json; charset=utf-8',
         'Accept':'application/json; charset=utf-8',
@@ -221,7 +221,7 @@ def place_order(pred_ict):
     guaranteedStop_value = True
     currencyCode_value = "GBP"
     forceOpen_value = True
-    stopDistance_value = "25"
+    stopDistance_value = stop_loss_TR
     
     base_url = REAL_OR_NO_REAL + '/positions/otc'         
     data = {"direction":DIRECTION_TO_TRADE,"epic": epic_id, "limitDistance":limitDistance_value, "orderType":orderType_value, "size":size_value,"expiry":expiry_value,"guaranteedStop":guaranteedStop_value,"currencyCode":currencyCode_value,"forceOpen":forceOpen_value,"stopDistance":stopDistance_value}
@@ -361,6 +361,37 @@ for x in range(0, 9999):
         snapshotTime_a = np.append(snapshotTime_a, snapshotTime)
         
     max_value = np.amax(high_a)
+    price_ranges = []
+    closing_prices = []
+    first_time_round_loop = True
+    TR_prices = []
+    price_compare = "bid"
+
+    for i in d['prices']:
+        if first_time_round_loop == True:
+            #First time round loop cannot get previous
+            closePrice = i['closePrice'][price_compare]
+            closing_prices.append(closePrice)
+            high_price = i['highPrice'][price_compare]
+            low_price = i['lowPrice'][price_compare]
+            price_range = float(high_price - closePrice)
+            price_ranges.append(price_range)
+            first_time_round_loop = False
+        else:
+            prev_close = closing_prices[-1]
+            ###############################
+            closePrice = i['closePrice'][price_compare]
+            closing_prices.append(closePrice)
+            high_price = i['highPrice'][price_compare]
+            low_price = i['lowPrice'][price_compare]
+            price_range = float(high_price - closePrice)
+            price_ranges.append(price_range)
+            TR = max(high_price-low_price, abs(high_price-prev_close), abs(low_price-prev_close))
+            #print (TR)
+            TR_prices.append(TR)
+            
+    stop_loss_TR = str(int(max(TR_prices)))
+    print ("stopDistance_value for " + str(epic_id) + " will bet set at " + str(stop_loss_TR))
 
     getPattern()
     #graph()
