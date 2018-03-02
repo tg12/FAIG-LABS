@@ -27,9 +27,9 @@ import operator
 ########################################################################################################################
 # REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
 # API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '***********' 
-# #API_KEY = '********'
-# data = {"identifier":"*********","password": "*********"}
+# API_KEY = '**********************' 
+# #API_KEY = '**********************'
+# data = {"identifier":"**********************","password": "**********************"}
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -39,8 +39,9 @@ import operator
 ########################################################################################################################
 REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
 API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-API_KEY = '**************'
-data = {"identifier":"************","password": "***********"}
+#API_KEY = '**********************'
+API_KEY = '**********************'
+data = {"identifier":"**********************","password": "**********************"}
 
 headers = {'Content-Type':'application/json; charset=utf-8',
         'Accept':'application/json; charset=utf-8',
@@ -190,10 +191,10 @@ def place_order(pred_ict):
     shortPositionPercentage = float(d['shortPositionPercentage'])
     
     if price_diff > 0 and float(shortPositionPercentage) > float(longPositionPercentage) and float(shortPositionPercentage) > Client_Sentiment_Check:
-        DIRECTION_TO_TRADE = "SELL"
+        DIRECTION_TO_TRADE = "BUY"
         limitDistance_value = str(int(price_diff))
     elif price_diff < 0 and float(longPositionPercentage) > float(shortPositionPercentage) and float(longPositionPercentage) > Client_Sentiment_Check:
-        DIRECTION_TO_TRADE = "BUY"
+        DIRECTION_TO_TRADE = "SELL"
         limitDistance_value = str(int(price_diff * -1))
     # elif price_diff > 0 and float(longPositionPercentage) > float(shortPositionPercentage):
         # DIRECTION_TO_TRADE = "BUY"
@@ -208,12 +209,7 @@ def place_order(pred_ict):
         print (float(shortPositionPercentage))
         return None
     
-    if limitDistance_value == "0":
-        return None
-        #Really don't bother! 
-   
-    print ("Order will be a " + str(DIRECTION_TO_TRADE) + " Order, With a limit of: " + str(limitDistance_value))
-    # PROGRAMMABLE VALUES
+    #PROGRAMMABLE VALUES
     #SET INITIAL VARIABLES, Hacky for now! 
     orderType_value = "MARKET"
     size_value = "1"
@@ -222,7 +218,26 @@ def place_order(pred_ict):
     currencyCode_value = "GBP"
     forceOpen_value = True
     stopDistance_value = stop_loss_TR
+    cautious_trader = 2 #Like the greed value but opposite
+    greedy_trader = 0.4 #Don't be too greedy (1 = Full 100% trade)
+        
+    #~~~~~~~Cautious Trader~~~~~~~~~~~~
+    if float(stopDistance_value) < float(limitDistance_value):
+        stopDistance_value = float(stopDistance_value) * cautious_trader
+        stopDistance_value = str(int(limitDistance_value))
     
+    #~~~~~~~~~~~Greedy Trader~~~~~~~~~~~~~~~~~
+    limitDistance_value = float(limitDistance_value) * greedy_trader
+    limitDistance_value = str(int(limitDistance_value))
+    
+    if limitDistance_value == "0":
+        return None
+        #Really don't bother! 
+    
+    ###############################################################################################################
+    print ("Order will be a " + str(DIRECTION_TO_TRADE) + " Order, With a limit of: " + str(limitDistance_value))
+    print ("stopDistance_value for " + str(epic_id) + " will bet set at " + str(stop_loss_TR))
+    ###############################################################################################################
     base_url = REAL_OR_NO_REAL + '/positions/otc'         
     data = {"direction":DIRECTION_TO_TRADE,"epic": epic_id, "limitDistance":limitDistance_value, "orderType":orderType_value, "size":size_value,"expiry":expiry_value,"guaranteedStop":guaranteedStop_value,"currencyCode":currencyCode_value,"forceOpen":forceOpen_value,"stopDistance":stopDistance_value}
     r = requests.post(base_url, data=json.dumps(data), headers=authenticated_headers)
@@ -391,7 +406,7 @@ for x in range(0, 9999):
             TR_prices.append(TR)
             
     stop_loss_TR = str(int(max(TR_prices)))
-    print ("stopDistance_value for " + str(epic_id) + " will bet set at " + str(stop_loss_TR))
+    
 
     getPattern()
     #graph()
