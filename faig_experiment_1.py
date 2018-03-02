@@ -27,9 +27,9 @@ import operator
 ########################################################################################################################
 # REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
 # API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '**********************' 
-# #API_KEY = '**********************'
-# data = {"identifier":"**********************","password": "**********************"}
+# API_KEY = '********************' 
+# #API_KEY = '********************'
+# data = {"identifier":"********************","password": "********************"}
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -39,9 +39,9 @@ import operator
 ########################################################################################################################
 REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
 API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-#API_KEY = '**********************'
-API_KEY = '**********************'
-data = {"identifier":"**********************","password": "**********************"}
+API_KEY = '********************'
+#API_KEY = '********************'
+data = {"identifier":"********************","password": "********************"}
 
 headers = {'Content-Type':'application/json; charset=utf-8',
         'Accept':'application/json; charset=utf-8',
@@ -175,21 +175,7 @@ def place_order(pred_ict):
     percent_check = get_change(CURRENT_PRICE_bid, max_value)
     ################################################################
     print ("!!DEBUG!! Percent Check: " + str(percent_check))
-
-    #Good ol "Crowd-sourcing" check.....
-    base_url = REAL_OR_NO_REAL + '/clientsentiment/'+ MARKET_ID
-    auth_r = requests.get(base_url, headers=authenticated_headers)
-    d = json.loads(auth_r.text)
-    
-    print ("-----------------DEBUG-----------------")
-    print(auth_r.status_code)
-    print(auth_r.reason)
-    print (auth_r.text)
-    print ("-----------------DEBUG-----------------")
-    
-    longPositionPercentage = float(d['longPositionPercentage'])
-    shortPositionPercentage = float(d['shortPositionPercentage'])
-    
+      
     if price_diff > 0 and float(shortPositionPercentage) > float(longPositionPercentage) and float(shortPositionPercentage) > Client_Sentiment_Check:
         DIRECTION_TO_TRADE = "BUY"
         limitDistance_value = str(int(price_diff))
@@ -314,9 +300,9 @@ def place_order(pred_ict):
 
 for x in range(0, 9999):
     
-    Price_Change_OK = False
+    OK_to_Trade = False
     
-    while not Price_Change_OK:
+    while not OK_to_Trade:
         random.shuffle(epic_ids)
         epic_id = random.choice(epic_ids)
 
@@ -346,12 +332,33 @@ for x in range(0, 9999):
         #if spread is less than -2, It's too big
         if float(spread) < -2:
          print ("!!DEBUG!! :- SPREAD NOT OK")
-         Price_Change_OK = False
+         OK_to_Trade = False
          sleep(2)
+         continue #No point checking sentiment and wasting an API call!!
         elif float(spread) > -2:
-         Price_Change_OK = True
+         OK_to_Trade = True
+         
+        #Good ol "Crowd-sourcing" check.....
+        base_url = REAL_OR_NO_REAL + '/clientsentiment/'+ MARKET_ID
+        auth_r = requests.get(base_url, headers=authenticated_headers)
+        d = json.loads(auth_r.text)
+        
+        print ("-----------------DEBUG-----------------")
+        print(auth_r.status_code)
+        print(auth_r.reason)
+        print (auth_r.text)
+        print ("-----------------DEBUG-----------------")
 
-    time_series_int = str(randint(60, 90))
+        longPositionPercentage = float(d['longPositionPercentage'])
+        shortPositionPercentage = float(d['shortPositionPercentage'])
+    
+        if float(shortPositionPercentage) > Client_Sentiment_Check or float(longPositionPercentage) > Client_Sentiment_Check:
+            print("!!DEBUG!! Sentiment Check Failed!!")
+            OK_to_Trade = True
+        else:
+            OK_to_Trade = False
+
+    time_series_int = str(randint(40, 50))
     sleep(3) #Wait 3s to stop IG error
     
     base_url = REAL_OR_NO_REAL + '/prices/'+ epic_id + '/MINUTE_15/' + time_series_int
@@ -359,9 +366,9 @@ for x in range(0, 9999):
     auth_r = requests.get(base_url, headers=authenticated_headers)
     d = json.loads(auth_r.text)
 
-    # print(auth_r.status_code)
-    # print(auth_r.reason)
-    # print (auth_r.text)
+    print(auth_r.status_code)
+    print(auth_r.reason)
+    print (auth_r.text)
 
     for i in d['prices']:
         snapshotTime = i['snapshotTime']
