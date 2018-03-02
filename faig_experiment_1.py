@@ -27,9 +27,7 @@ import operator
 ########################################################################################################################
 # REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
 # API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '********************' 
-# #API_KEY = '********************'
-# data = {"identifier":"********************","password": "********************"}
+# data = {"identifier":"*************","password": "************"}
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -39,9 +37,7 @@ import operator
 ########################################################################################################################
 REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
 API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-API_KEY = '********************'
-#API_KEY = '********************'
-data = {"identifier":"********************","password": "********************"}
+data = {"identifier":"*************","password": "*************"}
 
 headers = {'Content-Type':'application/json; charset=utf-8',
         'Accept':'application/json; charset=utf-8',
@@ -97,11 +93,10 @@ high_a = np.empty((0)) #Init this
 low_a = np.empty((0)) #Init this
 snapshotTime_a = np.empty((0)) #Init this
 price_prediction = 0 #Init this
-Client_Sentiment_Check = 59
+Client_Sentiment_Check = 69
 
 epic_ids = ["CS.D.AUDUSD.TODAY.IP", "CS.D.EURCHF.TODAY.IP", "CS.D.EURGBP.TODAY.IP", "CS.D.EURJPY.TODAY.IP", "CS.D.EURUSD.TODAY.IP", "CS.D.GBPEUR.TODAY.IP", "CS.D.GBPUSD.TODAY.IP", "CS.D.USDCAD.TODAY.IP", "CS.D.USDCHF.TODAY.IP", "CS.D.USDJPY.TODAY.IP", "CS.D.CADCHF.TODAY.IP", "CS.D.CADJPY.TODAY.IP", "CS.D.CHFJPY.TODAY.IP", "CS.D.EURCAD.TODAY.IP", "CS.D.EURSGD.TODAY.IP", "CS.D.EURZAR.TODAY.IP", "CS.D.GBPCAD.TODAY.IP", "CS.D.GBPCHF.TODAY.IP", "CS.D.GBPJPY.TODAY.IP", "CS.D.GBPSGD.TODAY.IP", "CS.D.GBPZAR.TODAY.IP", "CS.D.MXNJPY.TODAY.IP", "CS.D.NOKJPY.TODAY.IP", "CS.D.PLNJPY.TODAY.IP", "CS.D.SEKJPY.TODAY.IP", "CS.D.SGDJPY.TODAY.IP", "CS.D.USDSGD.TODAY.IP", "CS.D.USDZAR.TODAY.IP", "CS.D.AUDCAD.TODAY.IP", "CS.D.AUDCHF.TODAY.IP", "CS.D.AUDEUR.TODAY.IP", "CS.D.AUDGBP.TODAY.IP", "CS.D.AUDJPY.TODAY.IP", "CS.D.AUDNZD.TODAY.IP", "CS.D.AUDSGD.TODAY.IP", "CS.D.EURAUD.TODAY.IP", "CS.D.EURNZD.TODAY.IP", "CS.D.GBPAUD.TODAY.IP", "CS.D.GBPNZD.TODAY.IP", "CS.D.NZDAUD.TODAY.IP", "CS.D.NZDCAD.TODAY.IP", "CS.D.NZDCHF.TODAY.IP", "CS.D.NZDEUR.TODAY.IP", "CS.D.NZDGBP.TODAY.IP", "CS.D.NZDJPY.TODAY.IP", "CS.D.NZDUSD.TODAY.IP", "CS.D.CHFHUF.TODAY.IP", "CS.D.EURCZK.TODAY.IP", "CS.D.EURHUF.TODAY.IP", "CS.D.EURILS.TODAY.IP", "CS.D.EURMXN.TODAY.IP", "CS.D.EURPLN.TODAY.IP", "CS.D.EURTRY.TODAY.IP", "CS.D.GBPCZK.TODAY.IP", "CS.D.GBPHUF.TODAY.IP", "CS.D.GBPILS.TODAY.IP", "CS.D.GBPMXN.TODAY.IP", "CS.D.GBPPLN.TODAY.IP", "CS.D.GBPTRY.TODAY.IP", "CS.D.TRYJPY.TODAY.IP", "CS.D.USDCZK.TODAY.IP", "CS.D.USDHUF.TODAY.IP", "CS.D.USDILS.TODAY.IP", "CS.D.USDMXN.TODAY.IP", "CS.D.USDPLN.TODAY.IP", "CS.D.USDTRY.TODAY.IP", "CS.D.CADNOK.TODAY.IP", "CS.D.CHFNOK.TODAY.IP", "CS.D.EURDKK.TODAY.IP", "CS.D.EURNOK.TODAY.IP", "CS.D.EURSEK.TODAY.IP", "CS.D.GBPDKK.TODAY.IP", "CS.D.GBPNOK.TODAY.IP", "CS.D.GBPSEK.TODAY.IP", "CS.D.NOKSEK.TODAY.IP", "CS.D.USDDKK.TODAY.IP", "CS.D.USDNOK.TODAY.IP", "CS.D.USDSEK.TODAY.IP", "CS.D.AUDCNH.TODAY.IP", "CS.D.CADCNH.TODAY.IP", "CS.D.CNHJPY.TODAY.IP", "CS.D.BRLJPY.TODAY.IP", "CS.D.GBPINR.TODAY.IP", "CS.D.USDBRL.TODAY.IP", "CS.D.USDIDR.TODAY.IP", "CS.D.USDINR.TODAY.IP", "CS.D.USDKRW.TODAY.IP", "CS.D.USDMYR.TODAY.IP", "CS.D.USDPHP.TODAY.IP", "CS.D.USDTWD.TODAY.IP", "CS.D.EURCNH.TODAY.IP", "CS.D.sp_EURRUB.TODAY.IP", "CS.D.GBPCNH.TODAY.IP", "CS.D.NZDCNH.TODAY.IP", "CS.D.USDCNH.TODAY.IP", "CS.D.sp_USDRUB.TODAY.IP"]
 #ALL EPICS
-# spreads_and_epics = []
 
 def bytedate2num(fmt):
     def converter(b):
@@ -177,10 +172,10 @@ def place_order(pred_ict):
     print ("!!DEBUG!! Percent Check: " + str(percent_check))
       
     if price_diff > 0 and float(shortPositionPercentage) > float(longPositionPercentage) and float(shortPositionPercentage) > Client_Sentiment_Check:
-        DIRECTION_TO_TRADE = "BUY"
+        DIRECTION_TO_TRADE = "SELL"
         limitDistance_value = str(int(price_diff))
     elif price_diff < 0 and float(longPositionPercentage) > float(shortPositionPercentage) and float(longPositionPercentage) > Client_Sentiment_Check:
-        DIRECTION_TO_TRADE = "SELL"
+        DIRECTION_TO_TRADE = "BUY"
         limitDistance_value = str(int(price_diff * -1))
     # elif price_diff > 0 and float(longPositionPercentage) > float(shortPositionPercentage):
         # DIRECTION_TO_TRADE = "BUY"
@@ -204,8 +199,8 @@ def place_order(pred_ict):
     currencyCode_value = "GBP"
     forceOpen_value = True
     stopDistance_value = stop_loss_TR
-    cautious_trader = 2 #Like the greed value but opposite
-    greedy_trader = 0.4 #Don't be too greedy (1 = Full 100% trade)
+    cautious_trader = 1.5 #Like the greed value but opposite
+    greedy_trader = 0.5 #Don't be too greedy (1 = Full 100% trade)
         
     #~~~~~~~Cautious Trader~~~~~~~~~~~~
     if float(stopDistance_value) < float(limitDistance_value):
@@ -256,6 +251,7 @@ def place_order(pred_ict):
 ##################################################
 ##################################################
 ##################################################
+# spreads_and_epics = []
 
 # for epic_id in epic_ids:
     # tmp_lst = []
@@ -358,7 +354,7 @@ for x in range(0, 9999):
         else:
             OK_to_Trade = False
 
-    time_series_int = str(randint(40, 50))
+    time_series_int = str(randint(50, 70))
     sleep(3) #Wait 3s to stop IG error
     
     base_url = REAL_OR_NO_REAL + '/prices/'+ epic_id + '/MINUTE_15/' + time_series_int
