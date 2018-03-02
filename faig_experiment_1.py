@@ -30,13 +30,13 @@ import operator
 
 
 ########################################################################################################################
-# REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
-# API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '********************' 
-# #API_KEY = '**********************'
-###############################################################
-# API_KEY = '****************************' #<- DO NOT USE!!
-# data = {"identifier":"********************","password": "*********************"}
+REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
+API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
+#API_KEY = '*************************' 
+API_KEY = '***********'
+##############################################################
+#API_KEY = '**************' #<- DO NOT USE!!
+data = {"identifier":"**********","password": "***************"}
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -44,12 +44,12 @@ import operator
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
-REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
-API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-API_KEY = '*********************'
-#####################################################
-#API_KEY = '***********************' #<- DO NOT USE
-data = {"identifier":"*****************","password": "***************"}
+# REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
+# API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
+# API_KEY = '*****************'
+# #####################################################
+# #API_KEY = '***************' #<- DO NOT USE
+# data = {"identifier":"**************","password": "*****************"}
 
 headers = {'Content-Type':'application/json; charset=utf-8',
         'Accept':'application/json; charset=utf-8',
@@ -139,13 +139,6 @@ epic_ids = ["CS.D.AUDUSD.TODAY.IP", "CS.D.EURCHF.TODAY.IP", "CS.D.EURGBP.TODAY.I
         # lst = runningSums(lst)
     # return lst
         
-def percentage(part, whole):
-    #return 100 * float(part)/float(whole)
-    return 100 * (whole - part)
-    
-def changePercent(start, end):
-    return ((end-start)/start)*100
-
 def get_change(current, previous):
     if current == previous:
         return 100.0
@@ -193,7 +186,7 @@ def place_order(pred_ict):
     forceOpen_value = True
     stopDistance_value = stop_loss_TR
     cautious_trader = 1.5 #Like the greed value but opposite
-    greedy_trader = 0.5 #Don't be too greedy (1 = Full 100% trade)
+    greedy_trader = 0.3 #Don't be too greedy (1 = Full 100% trade)
     
     if str(limitDistance_value) == "0":
         print ("!!DEBUG!! Bailing Ooooot")
@@ -446,8 +439,10 @@ for x in range(0, 9999):
     print ("Intercept: " + str(intercept))
     #show()
     
-    if float(slope) > 1:
-        print("!!DEBUG!! Strong Trend")
+    if float(slope) > 3:
+        print("!!DEBUG!! Strong Trend UP")
+    elif float(slope) < -3:
+        print("!!DEBUG!! Strong Trend DOWN")
     
     predicted_value = float(intercept)
     print ("!!DEBUG!! Passing .... " + str(predicted_value))
