@@ -32,11 +32,11 @@ import operator
 ########################################################################################################################
 REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
 API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-#API_KEY = '*************************' 
-API_KEY = '***********'
+#API_KEY = '**********************' 
+API_KEY = '***********************'
 ##############################################################
-#API_KEY = '**************' #<- DO NOT USE!!
-data = {"identifier":"**********","password": "***************"}
+#API_KEY = 'e8ac2586a8bb7ff31d2717665425be5332985eed' #<- DO NOT USE!!
+data = {"identifier":"*****************","password": "*************"}
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -46,10 +46,10 @@ data = {"identifier":"**********","password": "***************"}
 ########################################################################################################################
 # REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
 # API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-# API_KEY = '*****************'
+# API_KEY = '**********************'
 # #####################################################
-# #API_KEY = '***************' #<- DO NOT USE
-# data = {"identifier":"**************","password": "*****************"}
+# #API_KEY = '*************************' #<- DO NOT USE
+# data = {"identifier":"***************","password": "****************"}
 
 headers = {'Content-Type':'application/json; charset=utf-8',
         'Accept':'application/json; charset=utf-8',
@@ -380,15 +380,16 @@ for x in range(0, 9999):
         snapshotTime = i['snapshotTime']
         lowPrice = i['lowPrice']['bid']
         highPrice = i['highPrice']['bid']
-        y.append(float(highPrice))
-        
+        closePrice = i['closePrice']['bid']
+        #####################################################################
         dt_obj = datetime.datetime.strptime(snapshotTime,'%Y:%m:%d-%H:%M:%S')
-        snapshotTime = datetime.datetime.strftime(dt_obj, '%H:%M')
-       
+        snapshotTime = datetime.datetime.strftime(dt_obj, '%H:%M')  
         high_a = np.append(high_a, highPrice)
         high_a = np.append(high_a, highPrice)
         low_a = np.append(low_a, lowPrice)
         snapshotTime_a = np.append(snapshotTime_a, snapshotTime)
+        ###########################################################
+        y.append(float(closePrice))
         
     max_value = np.amax(high_a)
     price_ranges = []
