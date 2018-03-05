@@ -30,11 +30,11 @@ import operator
 ########################################################################################################################
 # REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
 # API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '******************' 
-# #API_KEY = '*****************'
+# API_KEY = '****************' 
+# #API_KEY = '****************'
 # ##############################################################
-# #API_KEY = '*****************' #<- DO NOT USE!!
-# data = {"identifier":"*****************","password": "*****************"}
+# #API_KEY = '****************' #<- DO NOT USE!!
+# data = {"identifier":"****************","password": "****************"}
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -44,10 +44,10 @@ import operator
 ########################################################################################################################
 REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
 API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-API_KEY = '*****************'
+API_KEY = '****************'
 #####################################################
-#API_KEY = '*****************' #<- DO NOT USE
-data = {"identifier":"*****************","password": "*****************"}
+#API_KEY = '****************' #<- DO NOT USE
+data = {"identifier":"****************","password": "****************"}
 
 headers = {'Content-Type':'application/json; charset=utf-8',
         'Accept':'application/json; charset=utf-8',
@@ -154,12 +154,12 @@ def place_order(pred_ict):
             DIRECTION_TO_TRADE = "BUY"
             limitDistance_value = str(int(float(price_diff) * float(greedy_trader)))
             limitDistance_value = str(int(limitDistance_value) * -1) 
-        elif price_diff > 0 and float(longPositionPercentage) > Client_Sentiment_Check and int(last) > int(vol_avg): #Quite a lot of volume in the last time frame to support a BUY! Signal
-            DIRECTION_TO_TRADE = "BUY"
-            limitDistance_value = str(int(float(price_diff) * float(slope)))
+        # elif price_diff > 0 and float(longPositionPercentage) > Client_Sentiment_Check and int(last) > int(vol_avg): #Quite a lot of volume in the last time frame to support a BUY! Signal
+            # DIRECTION_TO_TRADE = "BUY"
+            # limitDistance_value = str(int(float(price_diff) * float(slope)))
         else:
             print ("!!DEBUG!! No trade, No Conditions Met!")
-            print (price_diff)
+            #print (price_diff)
             #print (float(longPositionPercentage))
             #print (float(shortPositionPercentage))
             return None
@@ -191,7 +191,7 @@ def place_order(pred_ict):
 
     if now_time >= time(8,30) and now_time <= time(16,30):
         print ("LSE OPEN/Decent Volume")
-    elif now_time >= time(14,30) and now_time <= time(3,59):
+    elif now_time >= time(14,30) and now_time <= time(2,59):
         print ("NY OPEN/Decent Volume")
     else:
         print ("Overnight/Late Trading")
@@ -200,6 +200,7 @@ def place_order(pred_ict):
         ###################################################
         stopDistance_value = int(stopDistance_value) * float(slope)
         stopDistance_value = str(int(stopDistance_value))
+        return None #No trade early hours!!
         
     if int(limitDistance_value) <= 0 or int(stopDistance_value) <= 0:
         print ("!!DEBUG!! Bailing Ooooot, Limit Distance/Stop Loss Below 0")
