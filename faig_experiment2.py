@@ -30,11 +30,11 @@ import operator
 ########################################################################################################################
 # REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
 # API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '********' 
-# #API_KEY = '********'
+# API_KEY = '**************' 
+# #API_KEY = '***************'
 # ##############################################################
-# #API_KEY = '********' #<- DO NOT USE!!
-# data = {"identifier":"********","password": "********"}
+# #API_KEY = '***********' #<- DO NOT USE!!
+# data = {"identifier":"*********","password": "*************"}
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -44,10 +44,10 @@ import operator
 ########################################################################################################################
 REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
 API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-API_KEY = '13f5c77f9c9aaa73761b5255d133a17aa7342cf9'
+API_KEY = '*******************'
 #####################################################
-#API_KEY = '********' #<- DO NOT USE
-data = {"identifier":"********","password": "********"}
+#API_KEY = '****************' #<- DO NOT USE
+data = {"identifier":"**************","password": "***********"}
 
 headers = {'Content-Type':'application/json; charset=utf-8',
         'Accept':'application/json; charset=utf-8',
@@ -193,7 +193,7 @@ def place_order(pred_ict):
 
     if now_time >= time(8,30) and now_time <= time(16,30):
         print ("LSE OPEN/Decent Volume")
-    elif now_time >= time(14,30) or now_time <= time(20,59):
+    elif now_time >= time(14,30) and now_time <= time(20,59):
         print ("NY OPEN/Decent Volume")
     elif now_time >= time(23,30) or now_time <= time(3,30):
         print ("Overnight/Late Trading")
