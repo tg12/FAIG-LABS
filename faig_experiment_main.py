@@ -21,6 +21,8 @@ import matplotlib.dates as mdates
 import operator
 import configparser
 
+sys.path.insert(0, '../FAIG')
+
 from igclient import IGClient
 
 config = configparser.ConfigParser()
