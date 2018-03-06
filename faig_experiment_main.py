@@ -90,10 +90,11 @@ def place_order(pred_ict):
             limitDistance_value = str(int(limitDistance_value) * -1) 
         elif price_diff > 0 and longPositionPercentage > Client_Sentiment_Check and int(last) > int(vol_avg): #Quite a lot of volume in the last time frame to support a BUY! Signal
             DIRECTION_TO_TRADE = "BUY"
-            limitDistance_value = str(int(float(price_diff) * float(slope)))
+            limitDistance_value = str(int(price_diff * greedy_trader))
         elif price_diff < 0 and shortPositionPercentage > Client_Sentiment_Check and int(last) < int(vol_avg): #Quite a lot of volume in the last time frame to support a SELL Signal
             DIRECTION_TO_TRADE = "SELL"
             limitDistance_value = str(int(float(price_diff) * float(greedy_trader)))
+            limitDistance_value = str(int(limitDistance_value) * -1)
         else:
             print ("!!DEBUG!! No trade, No Conditions Met!")
             return None
@@ -133,8 +134,6 @@ def place_order(pred_ict):
         print ("NY OPEN/Decent Volume")
     elif now_time >= time(23,30) and now_time <= time(3,30):
         print ("Overnight/Late Trading ... continue on as you are")
-    elif now_time >= time(23,30) or now_time <= time(3,30):
-        print ("Overnight/Late Trading")
         if float(slope) < 1:
             limitDistance_value = int(limitDistance_value) * float(slope)
             limitDistance_value = str(int(limitDistance_value))
