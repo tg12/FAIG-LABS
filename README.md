@@ -5,3 +5,7 @@ New ways of doing things, I am trawling github for new ways of looking at the Fo
 I have created some random scripts to do with IG and Forex and maybe shares too. 
 
 Enjoy, But you should always look at FAIG for the most stable. 
+
+Join the Discord Group. For all things FAIG Related. https://discord.gg/ZfwukPz
+
+
