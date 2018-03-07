@@ -5,11 +5,7 @@
 
 from datetime import datetime, time
 from time import sleep
-import requests
-import json
-import logging
 import sys
-import urllib
 import random
 from random import randint
 import numpy as np
@@ -18,88 +14,26 @@ from pylab import plot,show
 from scipy import stats
 #Scikit's LinearRegression model
 from sklearn.linear_model import LinearRegression
-import sys, os
-import csv
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ptick
 import matplotlib.dates as mdates
 import operator
+import configparser
 
+sys.path.insert(0, '../FAIG')
 
-########################################################################################################################
-# REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
-# API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '*****' 
-# #API_KEY = '*****'
-# ##############################################################
-# #API_KEY = '*****' #<- DO NOT USE!!
-# data = {"identifier":"*****","password": "*****"}
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-# FOR REAL....
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
-API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-API_KEY = '*****'
-#####################################################
-#API_KEY = '*****' #<- DO NOT USE
-data = {"identifier":"*****","password": "*****"}
+from igclient import IGClient
 
-headers = {'Content-Type':'application/json; charset=utf-8',
-        'Accept':'application/json; charset=utf-8',
-        'X-IG-API-KEY':API_KEY,
-        'Version':'2'
-        }
+config = configparser.ConfigParser()
+config.read("../FAIG/default.conf")
+config.read("../FAIG/config.conf")
 
-r = requests.post(API_ENDPOINT, data=json.dumps(data), headers=headers)
- 
-headers_json = dict(r.headers)
-CST_token = headers_json["CST"]
-print (R"CST : " + CST_token)
-x_sec_token = headers_json["X-SECURITY-TOKEN"]
-print (R"X-SECURITY-TOKEN : " + x_sec_token)
+igclient = IGClient(config=config)
 
-#GET ACCOUNTS
-base_url = REAL_OR_NO_REAL + '/accounts'
-authenticated_headers = {'Content-Type':'application/json; charset=utf-8',
-        'Accept':'application/json; charset=utf-8',
-        'X-IG-API-KEY':API_KEY,
-        'CST':CST_token,
-        'X-SECURITY-TOKEN':x_sec_token}
-
-auth_r = requests.get(base_url, headers=authenticated_headers)
-d = json.loads(auth_r.text)
-
-# print(auth_r.status_code)
-# print(auth_r.reason)
-# print (auth_r.text)
-
-for i in d['accounts']:
-    if str(i['accountType']) == "SPREADBET":
-        print ("Spreadbet Account ID is : " + str(i['accountId']))
-        spreadbet_acc_id = str(i['accountId'])
-
-#SET SPREAD BET ACCOUNT AS DEFAULT
-base_url = REAL_OR_NO_REAL + '/session'
-data = {"accountId":spreadbet_acc_id,"defaultAccount": "True"}
-auth_r = requests.put(base_url, data=json.dumps(data), headers=authenticated_headers)
-
-# print(auth_r.status_code)
-# print(auth_r.reason)
-# print (auth_r.text)
-#ERROR about account ID been the same, Ignore! 
+d = igclient.session()
 
 ###################################################################################
-##########################END OF LOGIN CODE########################################
-##########################END OF LOGIN CODE########################################
-##########################END OF LOGIN CODE########################################
-##########################END OF LOGIN CODE########################################
-###################################################################################
-price_prediction = 0 #Init this
 Client_Sentiment_Check = 69
 cautious_trader = 1.6 #Like the greed value but opposite
 greedy_trader = 0.4 #Don't be too greedy (1 = Full 100% trade)
@@ -117,9 +51,7 @@ def get_change(current, previous):
         return 0
         
 def place_order(pred_ict):
-    base_url = REAL_OR_NO_REAL + '/markets/'+ epic_id
-    auth_r = requests.get(base_url, headers=authenticated_headers)
-    d = json.loads(auth_r.text)
+    d = igclient.markets(epic_id)
     
     CURRENT_PRICE_bid = float(d['snapshot']['bid'])
     CURRENT_PRICE_offer = float(d['snapshot']['offer'])
@@ -149,20 +81,20 @@ def place_order(pred_ict):
         percent_change_vol = int(vol_avg) % int(last)
         #print ("!!DEBUG!! Modulus percent_change_vol " + str(percent_change_vol))
         
-        if price_diff > 0 and float(shortPositionPercentage) >= Client_Sentiment_Check and int(last) < int(vol_avg): #No real volume to support it in the last element
+        if price_diff > 0 and shortPositionPercentage >= Client_Sentiment_Check and int(last) < int(vol_avg): #No real volume to support it in the last element
+            DIRECTION_TO_TRADE = "SELL"
+            limitDistance_value = str(int(price_diff * greedy_trader))
+        elif price_diff < 0 and longPositionPercentage >= Client_Sentiment_Check and int(vol_avg) > int(last): #Quite a lot of volume over time frame
+            DIRECTION_TO_TRADE = "BUY"
+            limitDistance_value = str(int(price_diff * greedy_trader))
+            limitDistance_value = str(int(limitDistance_value) * -1) 
+        elif price_diff > 0 and longPositionPercentage > Client_Sentiment_Check and int(last) > int(vol_avg): #Quite a lot of volume in the last time frame to support a BUY! Signal
+            DIRECTION_TO_TRADE = "BUY"
+            limitDistance_value = str(int(price_diff * greedy_trader))
+        elif price_diff < 0 and shortPositionPercentage > Client_Sentiment_Check and int(last) < int(vol_avg): #Quite a lot of volume in the last time frame to support a SELL Signal
             DIRECTION_TO_TRADE = "SELL"
             limitDistance_value = str(int(float(price_diff) * float(greedy_trader)))
-        elif price_diff < 0 and float(longPositionPercentage) >= Client_Sentiment_Check and int(vol_avg) > int(last): #Quite a lot of volume over time frame
-            DIRECTION_TO_TRADE = "BUY"
-            limitDistance_value = str(int(float(price_diff) * float(greedy_trader)))
-            limitDistance_value = str(int(limitDistance_value) * -1) 
-        elif price_diff > 0 and float(longPositionPercentage) > Client_Sentiment_Check and int(last) > int(vol_avg): #Quite a lot of volume in the last time frame to support a BUY! Signal
-            DIRECTION_TO_TRADE = "BUY"
-            limitDistance_value = str(int(float(price_diff) * float(greedy_trader)))
-        elif price_diff < 0 and float(shortPositionPercentage) > Client_Sentiment_Check and int(last) < int(vol_avg): #Quite a lot of volume in the last time frame to support a SELL Signal
-            DIRECTION_TO_TRADE = "SELL"
-            limitDistance_value = str(int(float(price_diff) * float(greedy_trader)))
-            limitDistance_value = str(int(limitDistance_value) * -1) 
+            limitDistance_value = str(int(limitDistance_value) * -1)
         else:
             print ("!!DEBUG!! No trade, No Conditions Met!")
             return None
@@ -180,7 +112,7 @@ def place_order(pred_ict):
     currencyCode_value = "GBP"
     forceOpen_value = True
     stopDistance_value = stop_loss_TR
-    
+
     stopDistance_value = float(stopDistance_value) * cautious_trader
     stopDistance_value = str(int(stopDistance_value))
 
@@ -188,11 +120,11 @@ def place_order(pred_ict):
     if float(stopDistance_value) <= float(limitDistance_value):
         stopDistance_value = float(stopDistance_value) * cautious_trader
         stopDistance_value = str(int(stopDistance_value))
-
+ 
     if int(stopDistance_value) > 31: # Not at these high stop losses
         print ("!!DEBUG!! Nope")
         return None
-    
+ 
     now = datetime.now()
     now_time = now.time()
 
@@ -224,23 +156,15 @@ def place_order(pred_ict):
     print ("stopDistance_value for " + str(epic_id) + " will bet set at " + str(stopDistance_value))
     ###############################################################################################################
     #MAKE AN ORDER
-    base_url = REAL_OR_NO_REAL + '/positions/otc'         
     data = {"direction":DIRECTION_TO_TRADE,"epic": epic_id, "limitDistance":limitDistance_value, "orderType":orderType_value, "size":size_value,"expiry":expiry_value,"guaranteedStop":guaranteedStop_value,"currencyCode":currencyCode_value,"forceOpen":forceOpen_value,"stopDistance":stopDistance_value}
-    r = requests.post(base_url, data=json.dumps(data), headers=authenticated_headers)
-    
-    print ("-----------------DEBUG-----------------")
-    print (r.status_code)
-    print (r.reason)
-    print (r.text)
-    print ("-----------------DEBUG-----------------")
+    igclient.setdebug(True)
+    d = igclient.positions_otc(data)
+    igclient.setdebug(False)
 
-    d = json.loads(r.text)
     deal_ref = d['dealReference']
     sleep(2)
     #CONFIRM MARKET ORDER
-    base_url = REAL_OR_NO_REAL + '/confirms/'+ deal_ref
-    auth_r = requests.get(base_url, headers=authenticated_headers)
-    d = json.loads(auth_r.text)
+    d = igclient.confirms(deal_ref)
     DEAL_ID = d['dealId']
     print("DEAL ID : " + str(d['dealId']))
     print(d['dealStatus'])
@@ -263,52 +187,6 @@ def place_order(pred_ict):
         # show()
 
 
-##################################################
-##################################################
-##################################################
-# spreads_and_epics = []
-
-# for epic_id in epic_ids:
-    # tmp_lst = []
-    # base_url = REAL_OR_NO_REAL + '/markets/'+ epic_id
-    # auth_r = requests.get(base_url, headers=authenticated_headers)
-    # d = json.loads(auth_r.text)
-    # # print(auth_r.status_code)
-    # # print(auth_r.reason)
-    # # print (auth_r.text)
-    # # print (epic_id)
-    
-    # try:
-        # tmp_lst.append(epic_id)
-
-        # bid_price = d['snapshot']['bid']
-        # ask_price = d['snapshot']['offer']
-        # spread = float(bid_price) - float(ask_price)
-        # # print ("bid : " + str(bid_price))
-        # # print ("ask : " + str(ask_price))
-        # # print ("-------------------------")
-        # # print ("spread : " + str(spread))
-        # # print ("-------------------------")
-        # tmp_lst.append(spread)
-        # spreads_and_epics.append(tmp_lst)
-        # sleep(1)
-    # except Exception:
-        # pass
-    
-
-# sorted_list = sorted(spreads_and_epics, key=operator.itemgetter(1))
-
-# # for i in range(len(sorted_list)):
-    # # print(sorted_list[i])
-    
-# # print (max(sorted_list, key=lambda x: x[1]))
-# lowest_epic = max(sorted_list, key=lambda x: x[1])
-# epic_id = lowest_epic[0]
-
-#DEBUGGING, Really should better pick an epic! 
-#EPIC OF YOUR CHOOSING! Code above just picks lowest spread. Whatever way you want to do it is up to you! 
-#epic_id = "CS.D.GBPUSD.TODAY.IP"
-
 for x in range(0, 9999):
     
     OK_to_Trade = False
@@ -318,7 +196,7 @@ for x in range(0, 9999):
         epic_id = random.choice(epic_ids)
         now = datetime.now()
         now_time = now.time()
-        
+
         if now_time >= time(3,30) and now_time <= time(8,37):
             print ("!!DEBUG!! Shouldn't be trading, Should be fast asleep")
             sleep(120)
@@ -328,64 +206,38 @@ for x in range(0, 9999):
 
         print ("-----------------------------------------")
         print("!!DEBUG : Random epic_id is : " + str(epic_id))
-        base_url = REAL_OR_NO_REAL + '/markets/' + epic_id
-        auth_r = requests.get(base_url, headers=authenticated_headers)
-        d = json.loads(auth_r.text)
+        d = igclient.markets(epic_id)
 
-        # print ("-----------------DEBUG-----------------")
-        # print(auth_r.status_code)
-        # print(auth_r.reason)
-        # print (auth_r.text)
-        # print ("-----------------DEBUG-----------------")
         bid_price = d['snapshot']['bid']
         ask_price = d['snapshot']['offer']
         MARKET_ID = d['instrument']['marketId']
-                   
-        # print ("bid : " + str(bid_price))
-        # print ("ask : " + str(ask_price))
-        # print ("-------------------------")
-        
+                           
         spread = float(bid_price) - float(ask_price)
         print ("spread : " + str(spread))
 
         #if spread is less than -2, It's too big
-        if float(spread) < -2:
-         print ("!!DEBUG!! :- SPREAD NOT OK")
-         OK_to_Trade = False
-         sleep(2)
-         continue #No point checking sentiment and wasting an API call!!
-        elif float(spread) > -2:
-         OK_to_Trade = True
-         sleep(2)
-         
-        #Good ol "Crowd-sourcing" check.....
-        base_url = REAL_OR_NO_REAL + '/clientsentiment/'+ MARKET_ID
-        auth_r = requests.get(base_url, headers=authenticated_headers)
-        d = json.loads(auth_r.text)
+        if float(spread) > -2:
+          OK_to_Trade = True
+          #sleep(2)
+        else:
+          print ("!!DEBUG!! :- SPREAD NOT OK")
+          OK_to_Trade = False
+          sleep(2)
+          continue #No point checking sentiment and wasting an API call!!
         
-        print ("-----------------DEBUG-----------------")
-        print(auth_r.status_code)
-        print(auth_r.reason)
-        print (auth_r.text)
-        print ("-----------------DEBUG-----------------")
+        d = igclient.clientsentiment(MARKET_ID)
 
         longPositionPercentage = float(d['longPositionPercentage'])
         shortPositionPercentage = float(d['shortPositionPercentage'])
     
-        if float(shortPositionPercentage) > Client_Sentiment_Check or float(longPositionPercentage) > Client_Sentiment_Check:
+        if shortPositionPercentage > Client_Sentiment_Check or longPositionPercentage > Client_Sentiment_Check:
             OK_to_Trade = True
         else:
             OK_to_Trade = False
             print("!!DEBUG!! Sentiment Check Failed!!")
             
     ###############################################
-    ###############################################
-    ###############################################
-    ###############################################
     #USING HISTORICAL
-    ###############################################
-    ###############################################
-    ###############################################
     ###############################################
     
     time_series_int = str(randint(20, 30))
@@ -394,57 +246,35 @@ for x in range(0, 9999):
     y = [] # linearly generated sequence
     last_traded_volume = []
     times_of_trades = []
+
+    d = igclient.prices(epic_id, 'MINUTE_15/' + time_series_int)
     
-    base_url = REAL_OR_NO_REAL + '/prices/'+ epic_id + '/MINUTE_15/' + time_series_int
-    # Price resolution (MINUTE, MINUTE_2, MINUTE_3, MINUTE_5, MINUTE_10, MINUTE_15, MINUTE_30, HOUR, HOUR_2, HOUR_3, HOUR_4, DAY, WEEK, MONTH)
-    auth_r = requests.get(base_url, headers=authenticated_headers)
-    d = json.loads(auth_r.text)
-
-    # print(auth_r.status_code)
-    # print(auth_r.reason)
-    # print (auth_r.text)
-
     for i in d['prices']:
-        snapshotTime = i['snapshotTime']
-        lowPrice = i['lowPrice']['bid']
-        highPrice = i['highPrice']['bid']
-        closePrice = i['closePrice']['bid']
         if i['lastTradedVolume'] is not None:
-            lastTradedVolume = i['lastTradedVolume']
-        #####################################
-        y.append(float(closePrice))
-        last_traded_volume.append(lastTradedVolume)
-        times_of_trades.append(snapshotTime)
+            last_traded_volume.append(i['lastTradedVolume'])
+        y.append(float(i['closePrice']['bid']))
+        times_of_trades.append(i['snapshotTime'])
         
     max_value = max(y)
     price_ranges = []
     closing_prices = []
-    first_time_round_loop = True
     TR_prices = []
     price_compare = "bid"
  
-    for i in d['prices']:
-        if first_time_round_loop == True:
-            #First time round loop cannot get previous
-            closePrice = i['closePrice'][price_compare]
-            closing_prices.append(closePrice)
-            high_price = i['highPrice'][price_compare]
-            low_price = i['lowPrice'][price_compare]
-            price_range = float(high_price - closePrice)
-            price_ranges.append(price_range)
-            first_time_round_loop = False
-        else:
+    for count, i in enumerate(d['prices']):
+        if count > 0:
             prev_close = closing_prices[-1]
-            ###############################
-            closePrice = i['closePrice'][price_compare]
-            closing_prices.append(closePrice)
             high_price = i['highPrice'][price_compare]
             low_price = i['lowPrice'][price_compare]
-            price_range = float(high_price - closePrice)
+
+            price_range = float(high_price - i['closePrice'][price_compare])
             price_ranges.append(price_range)
             TR = max(high_price-low_price, abs(high_price-prev_close), abs(low_price-prev_close))
-            #print (TR)
             TR_prices.append(TR)
+
+        price_range = float(i['highPrice'][price_compare] - i['closePrice'][price_compare])
+        price_ranges.append(price_range)
+        closing_prices.append(i['closePrice'][price_compare])
             
     stop_loss_TR = str(int(max(TR_prices)))
     
