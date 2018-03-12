@@ -132,11 +132,11 @@ def place_order(pred_ict, vol_slope):
     now_time = now.time()
 
     if now_time >= time(8,30) and now_time <= time(16,30):
-        print ("LSE OPEN/Decent Volume ... continue on as you are")
+        print ("!!DEBUG!!...LSE OPEN/Decent Volume ... continue on as you are")
     elif now_time >= time(14,30) and now_time <= time(20,59):
         print ("NY OPEN/Decent Volume")
     elif now_time >= time(23,30) and now_time <= time(3,30):
-        print ("Overnight/Late Trading .... using slope")
+        print ("!!DEBUG!!...Overnight/Late Trading .... using slope")
         if float(slope) < greedy_trader:
             limitDistance_value = int(limitDistance_value) * float(slope)
             limitDistance_value = str(int(limitDistance_value))
@@ -146,7 +146,7 @@ def place_order(pred_ict, vol_slope):
         else:
             return None #No trade early hours!!
     elif now_time >= time(3,30) and now_time <= time(8,29):
-        print ("!!DEBUG!! No early trading Zzzzzzzzzz!")
+        print ("!!DEBUG!!...No early trading Zzzzzzzzzz!")
         return None #No trade early hours!!
         
     if int(limitDistance_value) <= 1 or int(stopDistance_value) <= 1:
