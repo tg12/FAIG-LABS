@@ -30,11 +30,11 @@ import operator
 ########################################################################################################################
 # REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
 # API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '*******************' 
-# API_KEY = '*******************'
+# API_KEY = '****' 
+# API_KEY = '****'
 # #############################################################
-# #API_KEY = '*******************' #<- DO NOT USE!!
-# data = {"identifier":"*******************","password": "*******************"}
+# #API_KEY = '****' #<- DO NOT USE!!
+# data = {"identifier":"****","password": "****"}
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -44,10 +44,10 @@ import operator
 ########################################################################################################################
 REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
 API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-API_KEY = '*******************'
+API_KEY = '****'
 ####################################################
-#API_KEY = '*******************' #<- DO NOT USE
-data = {"identifier":"*******************","password": "*******************"}
+#API_KEY = '****' #<- DO NOT USE
+data = {"identifier":"****","password": "****"}
 
 headers = {'Content-Type':'application/json; charset=utf-8',
         'Accept':'application/json; charset=utf-8',
@@ -356,11 +356,13 @@ for x in range(0, 9999):
         auth_r = requests.get(base_url, headers=authenticated_headers)
         d = json.loads(auth_r.text)
 
-        # print ("-----------------DEBUG-----------------")
-        # print(auth_r.status_code)
-        # print(auth_r.reason)
-        # print (auth_r.text)
-        # print ("-----------------DEBUG-----------------")
+        print ("-----------------DEBUG-----------------")
+        print ("#################DEBUG#################")
+        print(auth_r.status_code)
+        print(auth_r.reason)
+        print (auth_r.text)
+        print ("-----------------DEBUG-----------------")
+        print ("#################DEBUG#################")
         bid_price = d['snapshot']['bid']
         ask_price = d['snapshot']['offer']
         MARKET_ID = d['instrument']['marketId']
@@ -376,11 +378,11 @@ for x in range(0, 9999):
         if float(spread) < -2:
          print ("!!DEBUG!!...SPREAD NOT OK")
          OK_to_Trade = False
-         sleep(randint(1, 2))
+         sleep(randint(2, 3))
          continue #No point checking sentiment and wasting an API call!!
         elif float(spread) > -2:
          OK_to_Trade = True
-         sleep(randint(1, 2))
+         sleep(randint(2, 3))
          
         #Good ol "Crowd-sourcing" check.....
         base_url = REAL_OR_NO_REAL + '/clientsentiment/'+ MARKET_ID
