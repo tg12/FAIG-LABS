@@ -30,11 +30,11 @@ import operator
 ########################################################################################################################
 # REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
 # API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '****' 
-# API_KEY = '****'
+# API_KEY = '***' 
+# API_KEY = '***'
 # #############################################################
-# #API_KEY = '****' #<- DO NOT USE!!
-# data = {"identifier":"****","password": "****"}
+# #API_KEY = '***' #<- DO NOT USE!!
+# data = {"identifier":"***","password": "***"}
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -44,10 +44,10 @@ import operator
 ########################################################################################################################
 REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
 API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-API_KEY = '****'
+API_KEY = '***'
 ####################################################
-#API_KEY = '****' #<- DO NOT USE
-data = {"identifier":"****","password": "****"}
+#API_KEY = '***' #<- DO NOT USE
+data = {"identifier":"***","password": "***"}
 
 headers = {'Content-Type':'application/json; charset=utf-8',
         'Accept':'application/json; charset=utf-8',
@@ -213,11 +213,11 @@ def place_order(pred_ict, vol_slope):
     now_time = now.time()
 
     if now_time >= time(8,30) and now_time <= time(16,30):
-        print ("LSE OPEN/Decent Volume ... continue on as you are")
+        print ("!!DEBUG!!...LSE OPEN/Decent Volume ... continue on as you are")
     elif now_time >= time(14,30) and now_time <= time(20,59):
-        print ("NY OPEN/Decent Volume ... continue on as you are")
+        print ("!!DEBUG!!...NY OPEN/Decent Volume ... continue on as you are")
     elif now_time >= time(23,30) and now_time <= time(3,30):
-        print ("Overnight/Late Trading .... using slope")
+        print ("!!DEBUG!!...Overnight/Late Trading .... using slope")
         if float(slope) < greedy_trader:
             limitDistance_value = int(limitDistance_value) * float(slope)
             limitDistance_value = str(int(limitDistance_value))
@@ -227,7 +227,7 @@ def place_order(pred_ict, vol_slope):
         else:
             return None #No trade early hours!!
     elif now_time >= time(3,30) and now_time <= time(8,29):
-        print ("!!DEBUG!! No early trading Zzzzzzzzzz!")
+        print ("!!DEBUG!!...No early trading Zzzzzzzzzz!")
         return None #No trade early hours!!
         
     if int(limitDistance_value) <= 1 or int(stopDistance_value) <= 1:
@@ -356,13 +356,13 @@ for x in range(0, 9999):
         auth_r = requests.get(base_url, headers=authenticated_headers)
         d = json.loads(auth_r.text)
 
-        print ("-----------------DEBUG-----------------")
-        print ("#################DEBUG#################")
-        print(auth_r.status_code)
-        print(auth_r.reason)
-        print (auth_r.text)
-        print ("-----------------DEBUG-----------------")
-        print ("#################DEBUG#################")
+        # print ("-----------------DEBUG-----------------")
+        # print ("#################DEBUG#################")
+        # print(auth_r.status_code)
+        # print(auth_r.reason)
+        # print (auth_r.text)
+        # print ("-----------------DEBUG-----------------")
+        # print ("#################DEBUG#################")
         bid_price = d['snapshot']['bid']
         ask_price = d['snapshot']['offer']
         MARKET_ID = d['instrument']['marketId']
@@ -389,13 +389,13 @@ for x in range(0, 9999):
         auth_r = requests.get(base_url, headers=authenticated_headers)
         d = json.loads(auth_r.text)
         
-        print ("-----------------DEBUG-----------------")
-        print ("#################DEBUG#################")
-        print(auth_r.status_code)
-        print(auth_r.reason)
-        print (auth_r.text)
-        print ("-----------------DEBUG-----------------")
-        print ("#################DEBUG#################")
+        # print ("-----------------DEBUG-----------------")
+        # print ("#################DEBUG#################")
+        # print(auth_r.status_code)
+        # print(auth_r.reason)
+        # print (auth_r.text)
+        # print ("-----------------DEBUG-----------------")
+        # print ("#################DEBUG#################")
 
         longPositionPercentage = float(d['longPositionPercentage'])
         shortPositionPercentage = float(d['shortPositionPercentage'])
@@ -422,18 +422,18 @@ for x in range(0, 9999):
     last_traded_volume = []
     times_of_trades = []
     
-    base_url = REAL_OR_NO_REAL + '/prices/'+ epic_id + '/MINUTE_15/8'
+    base_url = REAL_OR_NO_REAL + '/prices/'+ epic_id + '/MINUTE_30/8'
     # Price resolution (MINUTE, MINUTE_2, MINUTE_3, MINUTE_5, MINUTE_10, MINUTE_15, MINUTE_30, HOUR, HOUR_2, HOUR_3, HOUR_4, DAY, WEEK, MONTH)
     auth_r = requests.get(base_url, headers=authenticated_headers)
     d = json.loads(auth_r.text)
 
-    print ("-----------------DEBUG-----------------")
-    print ("#################DEBUG#################")
-    print(auth_r.status_code)
-    print(auth_r.reason)
-    print (auth_r.text)
-    print ("-----------------DEBUG-----------------")
-    print ("#################DEBUG#################")
+    # print ("-----------------DEBUG-----------------")
+    # print ("#################DEBUG#################")
+    # print(auth_r.status_code)
+    # print(auth_r.reason)
+    # print (auth_r.text)
+    # print ("-----------------DEBUG-----------------")
+    # print ("#################DEBUG#################")
 
     for i in d['prices']:
         snapshotTime = i['snapshotTime']
@@ -443,22 +443,25 @@ for x in range(0, 9999):
         if i['lastTradedVolume'] is not None:
             lastTradedVolume = i['lastTradedVolume']
             last_traded_volume.append(lastTradedVolume)
-            print ("!!DEBUG!!...Adding Volume MINUTE_15 ... " + str(lastTradedVolume) + "....For ...." + str(snapshotTime))
+            print ("!!DEBUG!!...Adding Volume to array... " + str(lastTradedVolume) + "....For ...." + str(snapshotTime))
         #####################################
-        y.append(float(closePrice))
+        y.append(float(highPrice))
         times_of_trades.append(snapshotTime)
         
+    del last_traded_volume[-1]
+    print ("!!DEBUG!!...last_traded_volume list " + str(last_traded_volume)) #Remove the last incomplete segment of data
+    
     base_url = REAL_OR_NO_REAL + '/prices/'+ epic_id + '/HOUR/2'
     auth_r = requests.get(base_url, headers=authenticated_headers)
     d = json.loads(auth_r.text)
 
-    print ("-----------------DEBUG-----------------")
-    print ("#################DEBUG#################")
-    print(auth_r.status_code)
-    print(auth_r.reason)
-    print (auth_r.text)
-    print ("-----------------DEBUG-----------------")
-    print ("#################DEBUG#################")
+    # print ("-----------------DEBUG-----------------")
+    # print ("#################DEBUG#################")
+    # print(auth_r.status_code)
+    # print(auth_r.reason)
+    # print (auth_r.text)
+    # print ("-----------------DEBUG-----------------")
+    # print ("#################DEBUG#################")
 
     for i in d['prices']:
         snapshotTime = i['snapshotTime']
@@ -466,20 +469,20 @@ for x in range(0, 9999):
         highPrice = i['highPrice']['bid']
         closePrice = i['closePrice']['bid']
         #####################################
-        y.append(float(closePrice))
+        y.append(float(highPrice))
         times_of_trades.append(snapshotTime)
 
     base_url = REAL_OR_NO_REAL + '/prices/'+ epic_id + '/HOUR_4/1'
     auth_r = requests.get(base_url, headers=authenticated_headers)
     d = json.loads(auth_r.text)
 
-    print ("-----------------DEBUG-----------------")
-    print ("#################DEBUG#################")
-    print(auth_r.status_code)
-    print(auth_r.reason)
-    print (auth_r.text)
-    print ("-----------------DEBUG-----------------")
-    print ("#################DEBUG#################")
+    # print ("-----------------DEBUG-----------------")
+    # print ("#################DEBUG#################")
+    # print(auth_r.status_code)
+    # print(auth_r.reason)
+    # print (auth_r.text)
+    # print ("-----------------DEBUG-----------------")
+    # print ("#################DEBUG#################")
 
     for i in d['prices']:
         snapshotTime = i['snapshotTime']
@@ -487,7 +490,7 @@ for x in range(0, 9999):
         highPrice = i['highPrice']['bid']
         closePrice = i['closePrice']['bid']
         #####################################
-        y.append(float(closePrice))
+        y.append(float(highPrice))
         times_of_trades.append(snapshotTime)
     
     xi = arange(0,len(last_traded_volume))
