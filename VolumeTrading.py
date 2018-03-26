@@ -142,24 +142,24 @@ main_epic_ids = [
 #####################################################################
 #####################################################################
 #####################################################################
-# REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
-# API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-# API_KEY = '***'
-# #API_KEY = '***'
-# #############################################################
-# # API_KEY = '***' #<- DO NOT USE!!
-# data = {"identifier": "***", "password": "***"}
+REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
+API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
+API_KEY = '***'
+#API_KEY = '***'
+#############################################################
+# API_KEY = '***' #<- DO NOT USE!!
+data = {"identifier": "***", "password": "***"}
 #######################################################################
 # FOR REAL....
 #######################################################################
 #######################################################################
 #######################################################################
-REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
-API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-API_KEY = '***'
-###################################################
-# API_KEY = '***' #<- DO NOT USE
-data = {"identifier": "***", "password": "***"}
+# REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
+# API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
+# API_KEY = '***'
+# ###################################################
+# # API_KEY = '***' #<- DO NOT USE
+# data = {"identifier": "***", "password": "***"}
 
 headers = {'Content-Type': 'application/json; charset=utf-8',
            'Accept': 'application/json; charset=utf-8',
@@ -231,6 +231,8 @@ guaranteedStop_value = True
 currencyCode_value = "GBP"
 forceOpen_value = True
 stopDistance_value = "0"  # Make this a global variable for ease!
+
+COMPLETE_TP_RATIO = 3.24
 
 
 def percentage(part, whole):
@@ -352,7 +354,8 @@ def are_we_going_to_trade(epic_id, TRADE_DIRECTION):
     if TRADE_DIRECTION == "NONE":
         return None
 
-    limitDistance_value = "16"
+    limitDistance_value = str(
+        int(int(stopDistance_value) / float(COMPLETE_TP_RATIO)))
     DIRECTION_TO_TRADE = TRADE_DIRECTION
 
     ##########################################################################
@@ -653,10 +656,10 @@ if __name__ == '__main__':
                     if tmp_stop < 0:
                         tmp_stop = int(tmp_stop * -1)  # Make Positive
 
-                    if tmp_stop > 49:  # Final Check
+                    stopDistance_value = str(tmp_stop)
+
+                    if int(stopDistance_value) > 999:  # tmp margin req's...for now
                         TRADE_DIRECTION = "NONE"
-                    else:
-                        stopDistance_value = str(tmp_stop)
 
                 elif TRADE_DIRECTION == "BUY":
 
@@ -667,10 +670,10 @@ if __name__ == '__main__':
                     if tmp_stop < 0:
                         tmp_stop = int(tmp_stop * -1)  # Make Positive
 
-                    if tmp_stop > 49:  # Final Check
+                    stopDistance_value = str(tmp_stop)
+
+                    if int(stopDistance_value) > 999:  # tmp margin req's...for now
                         TRADE_DIRECTION = "NONE"
-                    else:
-                        stopDistance_value = str(tmp_stop)
 
             except BaseException:
                 print("Cannot reliably set Stop Loss, Bailing Out!")
