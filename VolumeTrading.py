@@ -28,6 +28,7 @@ import itertools
 import operator
 
 import sched
+from random import shuffle
 
 # ALL EPICS
 main_epic_ids = [
@@ -142,24 +143,24 @@ main_epic_ids = [
 #####################################################################
 #####################################################################
 #####################################################################
-REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
-API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
-API_KEY = '***'
-#API_KEY = '***'
-#############################################################
-# API_KEY = '***' #<- DO NOT USE!!
-data = {"identifier": "***", "password": "***"}
+# REAL_OR_NO_REAL = 'https://demo-api.ig.com/gateway/deal'
+# API_ENDPOINT = "https://demo-api.ig.com/gateway/deal/session"
+# API_KEY = '***'
+# #API_KEY = '***'
+# #############################################################
+# # API_KEY = '***' #<- DO NOT USE!!
+# data = {"identifier": "***", "password": "***"}
 #######################################################################
 # FOR REAL....
 #######################################################################
 #######################################################################
 #######################################################################
-# REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
-# API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
-# API_KEY = '***'
-# ###################################################
-# # API_KEY = '***' #<- DO NOT USE
-# data = {"identifier": "***", "password": "***"}
+REAL_OR_NO_REAL = 'https://api.ig.com/gateway/deal'
+API_ENDPOINT = "https://api.ig.com/gateway/deal/session"
+API_KEY = '***'
+###################################################
+# API_KEY = '***' #<- DO NOT USE
+data = {"identifier": "***", "password": "***"}
 
 headers = {'Content-Type': 'application/json; charset=utf-8',
            'Accept': 'application/json; charset=utf-8',
@@ -278,7 +279,7 @@ def lowest_spread_epic():
                 bid_price = d['snapshot']['bid']
                 ask_price = d['snapshot']['offer']
                 spread = float(bid_price) - float(ask_price)
-                if float(spread) > -1:
+                if float(spread) > -2:
                     # tmp_lst.append(epic_id)
                     # spreads_and_epics.append(tmp_lst)
                     pick_from_epics.append(epic_id)
@@ -580,6 +581,7 @@ if __name__ == '__main__':
                 print("OK to trade!!")
 
             tradeable_epic_ids = lowest_spread_epic()
+            shuffle(tradeable_epic_ids)
 
         except Exception as e:
             print(e)
@@ -597,20 +599,20 @@ if __name__ == '__main__':
                 if str(time.strftime("%S")) == "59":
                     break
 
-            VOLUME_4h, PRICE_4h = vol_price_action("/HOUR/4", epic_id)
+            VOLUME_ACT, PRICE_ACT = vol_price_action("/HOUR/12", epic_id)
 
             print("-----------------DEBUG-----------------")
             print("#################DEBUG#################")
-            if PRICE_4h == "UP" and VOLUME_4h == "UP":
+            if PRICE_ACT == "UP" and VOLUME_ACT == "UP":
                 print("Price up and volume up is the bullish signal for the market (or pair). It shows the market is in an uptrend and more and more traders want to enter in the pair.")
                 TRADE_DIRECTION = "BUY"
-            elif PRICE_4h == "UP" and VOLUME_4h == "DOWN":
+            elif PRICE_ACT == "UP" and VOLUME_ACT == "DOWN":
                 print("Price up and volume down is a dangerous situation for the market as well as for the inexperienced trader where the distribution is done by the smart investors who have some inside information about the market. Price and volume analysis is very helpful at this point which shows the clear divergence where price is moving up but volume is not supporting the up movement giving the early signal of smart money exit.")
                 TRADE_DIRECTION = "NONE"
-            elif PRICE_4h == "DOWN" and VOLUME_4h == "UP":
+            elif PRICE_ACT == "DOWN" and VOLUME_ACT == "UP":
                 print("This is the situation where nobody wants to continue with their long position and wants to exit from the pair. This is the divergence point where price moves down and the volume goes up.")
                 TRADE_DIRECTION = "SELL"
-            elif PRICE_4h == "DOWN" and VOLUME_4h == "DOWN":
+            elif PRICE_ACT == "DOWN" and VOLUME_ACT == "DOWN":
                 print(
                     "Price down and volume down is the market situation where the market is near its bottom.")
                 TRADE_DIRECTION = "BUY"
@@ -626,7 +628,7 @@ if __name__ == '__main__':
             bid_price = d['snapshot']['bid']
 
             try:
-                base_url = REAL_OR_NO_REAL + "/prices/" + epic_id + "/HOUR/4"
+                base_url = REAL_OR_NO_REAL + "/prices/" + epic_id + "/HOUR/12"
                 # Price resolution (MINUTE, MINUTE_2, MINUTE_3, MINUTE_5,
                 # MINUTE_10, MINUTE_15, MINUTE_30, HOUR, HOUR_2, HOUR_3,
                 # HOUR_4, DAY, WEEK, MONTH)
@@ -651,28 +653,22 @@ if __name__ == '__main__':
 
                     ce_stop = Chandelier_Exit_formula(
                         TRADE_DIRECTION, ATR, min(low_prices))
-                    tmp_stop = int(float(bid_price) - (ce_stop))
-
-                    if tmp_stop < 0:
-                        tmp_stop = int(tmp_stop * -1)  # Make Positive
+                    tmp_stop = int(abs(float(bid_price) - (ce_stop)))
 
                     stopDistance_value = str(tmp_stop)
 
-                    if int(stopDistance_value) > 999:  # tmp margin req's...for now
+                    if int(stopDistance_value) > 61:  # tmp margin req's...for now
                         TRADE_DIRECTION = "NONE"
 
                 elif TRADE_DIRECTION == "BUY":
 
                     ce_stop = Chandelier_Exit_formula(
                         TRADE_DIRECTION, ATR, max(high_prices))
-                    tmp_stop = int(float(bid_price) - (ce_stop))
-
-                    if tmp_stop < 0:
-                        tmp_stop = int(tmp_stop * -1)  # Make Positive
+                    tmp_stop = int(abs(float(bid_price) - (ce_stop)))
 
                     stopDistance_value = str(tmp_stop)
 
-                    if int(stopDistance_value) > 999:  # tmp margin req's...for now
+                    if int(stopDistance_value) > 61:  # tmp margin req's...for now
                         TRADE_DIRECTION = "NONE"
 
             except BaseException:
